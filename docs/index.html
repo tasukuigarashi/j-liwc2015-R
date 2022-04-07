@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="pandoc" />
+
+        <meta name="author" content="五十嵐　祐（Tasuku Igarashi）" />
+    
+        <meta name="date" content="2022-04-07" />
+    
+    <title>RとJ-LIWC2015によるテキスト解析</title>
+
+        <script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+        <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="site_libs/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+        <script src="site_libs/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+        <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+        <script src="site_libs/navigation-1.1/tabsets.js"></script>
+        <link href="site_libs/magnific-popup-1.1.0/magnific-popup.css" rel="stylesheet" />
+        <script src="site_libs/magnific-popup-1.1.0/jquery.magnific-popup.min.js"></script>
+        <link href="site_libs/robobook-0.1/robobook.css" rel="stylesheet" />
+        <link href="site_libs/robobook-0.1/robobook_fonts_embed.css" rel="stylesheet" />
+        <script src="site_libs/robobook-0.1/robobook.js"></script>
+        <script src="site_libs/clipboard-1.7.1/clipboard.min.js"></script>
+        <link href="site_libs/primer-tooltips-1.4.0/build.css" rel="stylesheet" />
+        <link href="site_libs/klippy-0.0.0.9500/css/klippy.min.css" rel="stylesheet" />
+        <script src="site_libs/klippy-0.0.0.9500/js/klippy.min.js"></script>
+    
+    
+        <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+      pre > code.sourceCode { white-space: pre; position: relative; }
+      pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+      pre > code.sourceCode > span:empty { height: 1.2em; }
+      .sourceCode { overflow: visible; }
+      code.sourceCode > span { color: inherit; text-decoration: inherit; }
+      div.sourceCode { margin: 1em 0; }
+      pre.sourceCode { margin: 0; }
+      @media screen {
+      div.sourceCode { overflow: auto; }
+      }
+      @media print {
+      pre > code.sourceCode { white-space: pre-wrap; }
+      pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+      }
+      pre.numberSource code
+        { counter-reset: source-line 0; }
+      pre.numberSource code > span
+        { position: relative; left: -4em; counter-increment: source-line; }
+      pre.numberSource code > span > a:first-child::before
+        { content: counter(source-line);
+          position: relative; left: -1em; text-align: right; vertical-align: baseline;
+          border: none; display: inline-block;
+          -webkit-touch-callout: none; -webkit-user-select: none;
+          -khtml-user-select: none; -moz-user-select: none;
+          -ms-user-select: none; user-select: none;
+          padding: 0 4px; width: 4em;
+          color: #aaaaaa;
+        }
+      pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+      div.sourceCode
+        {  background-color: #f8f8f8; }
+      @media screen {
+      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+      }
+      code span.al { color: #ef2929; } /* Alert */
+      code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+      code span.at { color: #c4a000; } /* Attribute */
+      code span.bn { color: #0000cf; } /* BaseN */
+      code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+      code span.ch { color: #4e9a06; } /* Char */
+      code span.cn { color: #000000; } /* Constant */
+      code span.co { color: #8f5902; font-style: italic; } /* Comment */
+      code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+      code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+      code span.dt { color: #204a87; } /* DataType */
+      code span.dv { color: #0000cf; } /* DecVal */
+      code span.er { color: #a40000; font-weight: bold; } /* Error */
+      code span.ex { } /* Extension */
+      code span.fl { color: #0000cf; } /* Float */
+      code span.fu { color: #000000; } /* Function */
+      code span.im { } /* Import */
+      code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+      code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+      code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+      code span.ot { color: #8f5902; } /* Other */
+      code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+      code span.sc { color: #000000; } /* SpecialChar */
+      code span.ss { color: #4e9a06; } /* SpecialString */
+      code span.st { color: #4e9a06; } /* String */
+      code span.va { color: #000000; } /* Variable */
+      code span.vs { color: #4e9a06; } /* VerbatimString */
+      code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+    </style>
+    
+    
+    <!-- tabsets -->
+    <script>
+      $(document).ready(function () {
+	  window.buildTabsets("toc");
+      });
+      $(document).ready(function () {
+	  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+	      $(this).parent().toggleClass('nav-tabs-open')
+	  });
+      });
+    </script>
+
+    <!-- code folding -->
+    
+    <!-- code download -->
+    
+    <!-- tabsets dropdown -->
+
+    <style type="text/css">
+      .tabset-dropdown > .nav-tabs {
+	  display: inline-table;
+	  max-height: 500px;
+	  min-height: 44px;
+	  overflow-y: auto;
+	  background: white;
+	  border: 1px solid #ddd;
+	  border-radius: 4px;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li.active:before {
+	  content: "";
+	  font-family: 'Glyphicons Halflings';
+	  display: inline-block;
+	  padding: 10px;
+	  border-right: 1px solid #ddd;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+	  content: "&#xe258;";
+	  border: none;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+	  content: "";
+	  font-family: 'Glyphicons Halflings';
+	  display: inline-block;
+	  padding: 10px;
+	  border-right: 1px solid #ddd;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li.active {
+	  display: block;
+      }
+
+      .tabset-dropdown > .nav-tabs > li.active a {
+  	  padding: 0 15px !important;
+      }
+
+      .tabset-dropdown > .nav-tabs > li > a,
+      .tabset-dropdown > .nav-tabs > li > a:focus,
+      .tabset-dropdown > .nav-tabs > li > a:hover {
+	  border: none;
+	  display: inline-block;
+	  border-radius: 4px;
+	  background-color: transparent;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+	  display: block;
+	  float: none;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li {
+	  display: none;
+	  margin-left: 0 !important;
+      }
+    </style>
+    
+</head>
+
+<body class="preload">
+
+   	
+            <!-- robobook start -->   
+   <div class="book with-summary">
+      <div class="book-summary">
+        <ul>
+          <li class="title">RとJ-LIWC2015によるテキスト解析</li>
+          <li class="divider"></li>
+        </ul>
+        <nav role="navigation" id="toc">
+          <ul>
+          <li><a href="#はじめに">はじめに</a></li>
+          <li><a href="#事前準備">事前準備</a>
+          <ul>
+          <li><a href="#rutf-8">R（UTF-8）</a></li>
+          <li><a href="#mecabipadic">MeCab/IPADIC</a></li>
+          <li><a href="#mecabのユーザー辞書ファイル">MeCabのユーザー辞書ファイル</a></li>
+          <li><a href="#j-liwc2015の辞書ファイル">J-LIWC2015の辞書ファイル</a></li>
+          </ul></li>
+          <li><a href="#rでの解析">Rでの解析</a>
+          <ul>
+          <li><a href="#rstudio-serverを起動する">RStudio Serverを起動する</a></li>
+          <li><a href="#パッケージの読み込み">パッケージの読み込み</a></li>
+          <li><a href="#ヘルパー関数の定義">ヘルパー関数の定義</a></li>
+          <li><a href="#辞書ファイルの読み込み">辞書ファイルの読み込み</a></li>
+          <li><a href="#サンプルデータ読み込み">サンプルデータ読み込み</a></li>
+          <li><a href="#解析対象のファイルの指定">解析対象のファイルの指定</a></li>
+          <li><a href="#ファイルの読み込み">ファイルの読み込み</a></li>
+          <li><a href="#j-liwc2015による解析">J-LIWC2015による解析</a></li>
+          <li><a href="#j-liwc2015mecabのカテゴリー一覧">J-LIWC2015、MeCabのカテゴリー一覧</a></li>
+          </ul></li>
+          <li><a href="#その他">その他</a></li>
+          <li><a href="#license">License</a></li>
+          </ul>
+        </nav>
+        <ul class="authors">
+          <li class="divider"></li>
+                                <li><span><i class="glyphicon glyphicon-user"></i> 五十嵐　祐（Tasuku Igarashi）</span></li>
+                                         <li><span><i class="glyphicon glyphicon-calendar"></i> 2022-04-07</span></li>
+                  </ul>     
+      </div>
+      <div class="book-body fixed">
+        <div class="body-inner">
+            <a class="btn pull-left js-toolbar-action toggle-sidebar" aria-label="Toggle Sidebar" title="Toggle Sidebar" href="#">
+              <span class="glyphicon glyphicon-menu-hamburger"></span>
+            </a>
+            <div class="page-inner">
+              <section id="content" class="normal">
+      
+   
+        
+      <h1 class="title">RとJ-LIWC2015によるテキスト解析</h1>
+      
+        
+
+   
+      
+   
+<!-- Don't indent these lines or it will mess pre blocks indentation --> 
+<script>
+  addClassKlippyTo("pre.r, pre.markdown");
+  addKlippy('right', 'top', 'auto', '1', 'Copy code', 'Copied!');
+</script>
+<div id="はじめに" class="section level1">
+<h1>はじめに</h1>
+<p>このページでは、RでJ-LIWC2015<a href="https://doi.org/10.3389/fpsyg.2022.841534" target="_blank">(Igarashi, Okuda, &amp; Sasahara, 2022)</a> による日本語テキスト解析を行う方法を紹介しています。</p>
+<p>J-LIWC2015は、英単語の言語学的・心理学的特性を数値化したテキスト解析の標準的な辞書である、<a href="https://www.liwc.app/help/psychometrics-manuals/" target="_blank">Linguistic Inquiry and Word Count 2015 (LIWC2015)</a> の公式日本語版です。J-LIWC2015は、11,609の単語、69のカテゴリを含み、心理学者、計算科学者によってその信頼性・妥当性が確認されています。</p>
+<p>J-LIWC2015のライセンスは、Pennebaker Conglomerates, Inc.が所有しています。<strong>J-LIWC2015は、学術研究目的に限り無料で利用できます。研究成果の公開時には、必ず下記論文を引用してください。</strong></p>
+<p>Igarashi, T., Okuda, S., &amp; Sasahara, K. (2022). Development of the Japanese Version of the Linguistic Inquiry and Word Count Dictionary 2015. <em>Frontiers in Psychology</em>, 13:841534. <a href="https://doi.org/10.3389/fpsyg.2022.841534" target="_blank">https://doi.org/10.3389/fpsyg.2022.841534</a></p>
+<p>商用利用に関しては、<a href="https://www.receptiviti.com/contact" target="_blank">Receptivi</a>までお問い合わせください。</p>
+</div>
+<div id="事前準備" class="section level1">
+<h1>事前準備</h1>
+<p>RでJ-LIWC2015による解析を行うには、以下の環境・ファイルが必要です。</p>
+<ol style="list-style-type: decimal">
+<li>R (UTF-8) <strong>（Windows版のRは利用できません。Windowsの場合は、WSLからRを利用してください）</strong></li>
+<li>MeCab/IPADIC</li>
+<li>MeCabのユーザー辞書ファイル（<code>user_dict.dic</code>）</li>
+<li>J-LIWC2015の辞書ファイル（<code>Japanese_dictionary.dic</code>） <strong>（LIWC2015のライセンスが必要です）</strong></li>
+</ol>
+<div id="rutf-8" class="section level2">
+<h2>R（UTF-8）</h2>
+<p>J-LIWC2015は、文字エンコーディングが<code>UTF-8</code>の環境で解析を行うことを想定しています。Mac、LinuxのRでは問題ありません。<strong>Windows版のRは、文字エンコーディングが<code>CP932 (Shift-JIS)</code> のため、J-LIWC2015による解析が正しく行えません。この問題に対処するには、WSL (Windows Subsystem for Linux)でRを実行します。</strong></p>
+<p>WSLのインストール方法は環境によって異なりますが、おおよそ以下の手順でインストールできます。まだWSLをインストールしていない場合は、以下の手順に従ってセットアップを行ってください（コマンドラインあるいはPowerShellでの操作が含まれます）。</p>
+<div id="wslとwindows-terminalのインストールwindowsのみ" class="section level3">
+<h3>WSLとWindows Terminalのインストール（Windowsのみ）</h3>
+<p>WSLにはWSL1とWSL2があります。ここではWSL2をインストールします。</p>
+<p><a href="https://www.teamxeppet.com/wsl2-win11-install/#toc1" target="_blank">こちらのサイト</a>を参考に、「WSL2インストール」の手順に従って、WSLのインストールと、Ubuntuのユーザー名とパスワードの設定を行ってください。設定が終わったら、<a href="https://shohei-doi.github.io/quant_polisci/wsl-rstudio.html#wsl2%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB" target="_blank">こちらのサイト</a>を参考に、Ubuntuのアップデートを行ってください。</p>
+<p>上記のサイトの手順ではWSLがうまくインストールできない場合は、PowerShell（管理者）で以下のコマンドを実行してください。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>wsl <span class="sc">--</span>install <span class="sc">-</span>d Ubuntu</span></code></pre></div>
+<p>次に、Windows Terminalをインストールします。<a href="https://www.microsoft.com/ja-jp/p/windows-terminal/9n0dx20hk701" target="_blank">こちらをクリック</a>して、Microsoft Storeからアプリを入手してください。</p>
+<p>アプリを開いたら、タブの横の「ｖ」をクリックして設定画面を開き、「規定のプロファイル」を「Ubuntu」に変更し、「保存」してください。その後、「＋」をクリックするとWSLが開きます。</p>
+<p>次回以降は、スタートメニューから「Terminal」と検索してWindows Terminalのアプリを開くと、WSLが起動します。</p>
+</div>
+<div id="wsl上でのrのインストールwindowsのみ" class="section level3">
+<h3>WSL上でのRのインストール（Windowsのみ）</h3>
+<p>Windows版のRとは別に、WSL上で動作するRをインストールします。</p>
+<p><a href="https://shohei-doi.github.io/quant_polisci/wsl-rstudio.html#r%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB-1" target="_blank">こちらのページ</a>を参考に、RをWSLにインストールしてください。</p>
+<p>次に、RStudio Serverをインストールします。以下のコマンドをWSLで実行してください。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>cd <span class="sc">/</span>tmp</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>wget https<span class="sc">:</span><span class="er">//</span>rstudio.org<span class="sc">/</span>download<span class="sc">/</span>latest<span class="sc">/</span>stable<span class="sc">/</span>server<span class="sc">/</span>bionic<span class="sc">/</span>rstudio<span class="sc">-</span>server<span class="sc">-</span>latest<span class="sc">-</span>amd64.deb</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sudo apt install <span class="sc">-</span>y gdebi</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>sudo gdebi rstudio<span class="sc">-</span>server<span class="sc">-</span>latest<span class="sc">-</span>amd64.deb</span></code></pre></div>
+</div>
+<div id="追加ライブラリのインストールwslmaclinux共通" class="section level3">
+<h3>追加ライブラリのインストール（WSL、Mac、Linux共通）</h3>
+<p>Rパッケージのインストールに必要なライブラリをインストールします。以下のコマンドをWSLで実行してください。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sudo apt install <span class="sc">-</span>y build<span class="sc">-</span>essential libcurl4<span class="sc">-</span>gnutls<span class="sc">-</span>dev openjdk<span class="dv">-7</span><span class="sc">-</span><span class="er">*</span> \</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>libxml2<span class="sc">-</span>dev libssl<span class="sc">-</span>dev zlib1g<span class="sc">-</span>dev fonts<span class="sc">-</span>noto<span class="sc">-</span>cjk \</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>libatlas3<span class="sc">-</span>base libatlas<span class="sc">-</span>base<span class="sc">-</span>dev gfortran</span></code></pre></div>
+</div>
+</div>
+<div id="mecabipadic" class="section level2">
+<h2>MeCab/IPADIC</h2>
+<p>日本語では英語と異なり、単語の区切りが明確でないため、<a href="https://taku910.github.io/mecab/" target="_blank">MeCab/IPADIC</a>を用いて形態素解析（分かち書き）を行います。</p>
+<div id="mecabipadicのインストール" class="section level3">
+<h3>MeCab/IPADICのインストール</h3>
+<p>WSL（Mac/Linuxはターミナル）で、以下のコマンドを実行してください<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sudo apt install <span class="sc">-</span>y mecab libmecab<span class="sc">-</span>dev mecab<span class="sc">-</span>ipadic<span class="sc">-</span>utf8</span></code></pre></div>
+</div>
+</div>
+<div id="mecabのユーザー辞書ファイル" class="section level2">
+<h2>MeCabのユーザー辞書ファイル</h2>
+<p>形態素解析の結果をJ-LIWC2015で適切に処理するために、追加でユーザー辞書ファイルを使用します。このチュートリアルのRスクリプトを使用する場合、自動でダウンロードされます<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+</div>
+<div id="j-liwc2015の辞書ファイル" class="section level2">
+<h2>J-LIWC2015の辞書ファイル</h2>
+<p>LIWC2015あるいはLIWC-22のライセンス（シリアル番号）が必要です。J-LIWC2015の利用に際して、LIWC2015のライセンスがある場合、新たにLIWC-22のライセンスを購入する必要はありません。このチュートリアルは、LIWC2015形式とLIWC-22形式、両方の辞書フォーマットに対応しています。</p>
+<p>LIWC2015形式の辞書は、以下の手順でダウンロードしてください：<a href="https://www.liwc.net/dictionaries/" target="_blank">LIWC2015の辞書サイト</a>にアクセス→LIWC2015のシリアル番号を入力し、<code>Login</code>をクリック→<code>Dictionaries</code>をクリック→<code>Next&gt;</code>ボタンをクリック→<code>Japanese Dictionary</code>をクリック→同意事項を読み、<code>I agree</code>をチェック→<code>Download this Dictionary</code>をクリック</p>
+<p>なお、LIWC2015は販売終了となっており、2022年2月から、<a href="https://www.liwc.app/" target="_blank">Pennebaker Conglomerates, Inc. のサイト</a>で、LIWC-22が購入可能です（30日～3年のサブスクリプション契約のみ）。LIWC-22のシリアル番号は、LIWC2015とは異なります。<a href="https://www.liwc.app/dictionaries" target="_blank">LIWC-22の辞書サイト</a>からログインし、LIWC-22形式のJ-LIWC2015の辞書ファイルをダウンロードしてください（フォーマットが異なりますが、内容は同一です）。</p>
+<p>ダウンロードした辞書ファイルは、辞書専用のフォルダ（このチュートリアルでは、<code>C:\Users\ユーザー名\Documents\J-LIWC2015\dic</code>）を作成し、そこに移動してください。</p>
+</div>
+</div>
+<div id="rでの解析" class="section level1">
+<h1>Rでの解析</h1>
+<p>事前準備を済ませたら、RでJ-LIWC2015による日本語テキスト解析を行っていきます。以下では、WSLで解析を行う場合について説明します。</p>
+<div id="rstudio-serverを起動する" class="section level2">
+<h2>RStudio Serverを起動する</h2>
+<p>WSL（Mac、Linuxはターミナル）を開き、以下のコマンドを実行してください。パスワードの入力が求められます。入力後、何も表示されない場合もあれば、「TTY detected. ～」と表示される場合もあります（問題はありません）。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sudo rstudio<span class="sc">-</span>server start</span></code></pre></div>
+<p>次に、ブラウザ（Chrome、Edge、Firefoxなど）で、以下のページにアクセスしてください。</p>
+<p><a href="http://localhost:8787/" target="_blank">http://localhost:8787/</a></p>
+<p>RStudio Serverが起動します。WSLの場合は、Ubuntuのユーザー名とパスワード、Mac、Linuxの場合はシステムのユーザー名とパスワードを入力します。</p>
+<p>RStudio Serverにログインできたら、画面左上の「＋」をクリックし、「R Script」を選択します。Rのスクリプトのウィンドウが開きます。以下のスクリプトは、こちらのウィンドウに貼り付けていってください。</p>
+</div>
+<div id="パッケージの読み込み" class="section level2">
+<h2>パッケージの読み込み</h2>
+<p>解析に必要なRのパッケージをインストールし、読み込みます。以下のスクリプトをRStudio Serverに貼り付けたら、スクリプトの行を選択し、「Run」をクリックするか、「CTRL」＋「Enter」キーを押します。画面下の「Console」ウィンドウでスクリプトが実行され、結果が出力されます。以降のスクリプトも同様に実行してください。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RとJ-LIWC2015によるテキスト解析</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># パッケージの読み込み</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">&quot;pacman&quot;</span>)) <span class="fu">install.packages</span>(<span class="st">&quot;pacman&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    dplyr, tidyr, purrr, stringr, stringi, readr, furrr, knitr,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    parallel, quanteda</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_install_gh</span>(<span class="st">&quot;junhewk/RcppMeCab&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RcppMeCab)</span></code></pre></div>
+<p>初めて実行する場合は、必要なパッケージをインストールするため、時間がかかります。 インストールがうまくいかない場合は、事前準備で説明したライブラリをインストールし直すか、Googleで調べてください。</p>
+</div>
+<div id="ヘルパー関数の定義" class="section level2">
+<h2>ヘルパー関数の定義</h2>
+<p>前処理と解析を行うためのヘルパー関数を定義します。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ヘルパー関数の定義</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># CPUのコア数の取得</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ncores <span class="ot">&lt;-</span> <span class="fu">detectCores</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># MeCabのカテゴリー名</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>MECAB_LOOKUP <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;記号&quot;</span> <span class="ot">=</span> <span class="st">&quot;symbol&quot;</span>, <span class="st">&quot;形容詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;adj&quot;</span>, <span class="st">&quot;助詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;particle&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;助動詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;auxverb&quot;</span>, <span class="st">&quot;接続詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;conj&quot;</span>, <span class="st">&quot;接頭詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;prefix&quot;</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;動詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;verb&quot;</span>, <span class="st">&quot;副詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;adverb&quot;</span>, <span class="st">&quot;名詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;noun&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;連体詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;preadj&quot;</span>,    <span class="st">&quot;その他&quot;</span> <span class="ot">=</span> <span class="st">&quot;others&quot;</span>, <span class="st">&quot;フィラー&quot;</span> <span class="ot">=</span> <span class="st">&quot;filler&quot;</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;感動詞&quot;</span> <span class="ot">=</span> <span class="st">&quot;interject&quot;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># J-LIWC2015のカテゴリー名（日本語）</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>LIWC_CAT_JA <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;機能語&quot;</span>, <span class="st">&quot;代名詞&quot;</span>, <span class="st">&quot;人称代名詞&quot;</span>, <span class="st">&quot;一人称単数&quot;</span>, <span class="st">&quot;一人称複数&quot;</span>, </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;二人称&quot;</span>, <span class="st">&quot;三人称単数&quot;</span>, <span class="st">&quot;三人称複数&quot;</span>, <span class="st">&quot;不定代名詞&quot;</span>, <span class="st">&quot;格助詞&quot;</span>, </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;助動詞&quot;</span>, <span class="st">&quot;副詞&quot;</span>, <span class="st">&quot;接続詞&quot;</span>, <span class="st">&quot;否定詞&quot;</span>, <span class="st">&quot;動詞&quot;</span>, <span class="st">&quot;疑問詞&quot;</span>, </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;数詞&quot;</span>, <span class="st">&quot;数量詞・助数詞&quot;</span>, <span class="st">&quot;形容動詞&quot;</span>, <span class="st">&quot;連体詞&quot;</span>, </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;感情プロセス&quot;</span>, <span class="st">&quot;ポジティブ感情&quot;</span>, <span class="st">&quot;ネガティブ感情&quot;</span>, </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;不安&quot;</span>, <span class="st">&quot;怒り&quot;</span>, <span class="st">&quot;悲しみ&quot;</span>, <span class="st">&quot;社会的（相互作用）プロセス&quot;</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;家族&quot;</span>, <span class="st">&quot;友人&quot;</span>, <span class="st">&quot;女性&quot;</span>, <span class="st">&quot;男性&quot;</span>, <span class="st">&quot;認知プロセス&quot;</span>, <span class="st">&quot;洞察&quot;</span>,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;原因&quot;</span>, <span class="st">&quot;不一致&quot;</span>, <span class="st">&quot;あいまいさ&quot;</span>, <span class="st">&quot;確かさ&quot;</span>, <span class="st">&quot;差別化&quot;</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;知覚プロセス&quot;</span>, <span class="st">&quot;視覚・知覚&quot;</span>, <span class="st">&quot;聴覚&quot;</span>,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;感覚（触覚・味覚・嗅覚）&quot;</span>, <span class="st">&quot;生物学的プロセス&quot;</span>, <span class="st">&quot;身体&quot;</span>, </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;健康&quot;</span>, <span class="st">&quot;性&quot;</span>, <span class="st">&quot;摂取&quot;</span>, <span class="st">&quot;動因&quot;</span>, <span class="st">&quot;つながり&quot;</span>, <span class="st">&quot;達成&quot;</span>,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;社会的地位・権力&quot;</span>, <span class="st">&quot;報酬&quot;</span>, <span class="st">&quot;リスク&quot;</span>, <span class="st">&quot;相対性&quot;</span>, <span class="st">&quot;動作&quot;</span>,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;空間&quot;</span>, <span class="st">&quot;時間&quot;</span>, <span class="st">&quot;仕事・学業&quot;</span>, <span class="st">&quot;趣味・余暇&quot;</span>, <span class="st">&quot;家&quot;</span>, <span class="st">&quot;金銭&quot;</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;宗教&quot;</span>, <span class="st">&quot;死&quot;</span>, <span class="st">&quot;インフォーマル&quot;</span>, <span class="st">&quot;罵倒&quot;</span>, <span class="st">&quot;ネットスラング&quot;</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;うなずき&quot;</span>, <span class="st">&quot;間投詞&quot;</span>, <span class="st">&quot;フィラー&quot;</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書の読み込みと英語カテゴリーの取得（LIWC2015形式）</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>read_dict <span class="ot">&lt;-</span> <span class="cf">function</span>(file) {</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  dictliwc <span class="ot">&lt;-</span> <span class="fu">dictionary</span>(<span class="at">file =</span> file, <span class="at">format =</span> <span class="st">&quot;LIWC&quot;</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># グローバル変数で英語カテゴリーの取得</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  LIWC_CAT_EN <span class="ot">&lt;&lt;-</span> <span class="fu">names</span>(dictliwc)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  dictliwc  </span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書の読み込みと英語カテゴリーの取得（LIWC22形式）</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>read_dict22 <span class="ot">&lt;-</span> <span class="cf">function</span>(file) {</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  dic_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(file)</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(dic_raw) <span class="ot">&lt;-</span> dic_raw<span class="sc">$</span>DicTerm</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  dicx <span class="ot">&lt;-</span> <span class="fu">lapply</span>(dic_raw, <span class="cf">function</span>(x) <span class="fu">rownames</span>(dic_raw)[x <span class="sc">==</span> <span class="st">&quot;X&quot;</span>])</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  dicx<span class="sc">$</span>DicTerm <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  dictliwc22 <span class="ot">&lt;-</span> <span class="fu">dictionary</span>(dicx)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="co"># グローバル変数で英語カテゴリーの取得</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  LIWC_CAT_EN <span class="ot">&lt;&lt;-</span> <span class="fu">names</span>(dictliwc22)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  dictliwc22</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 前処理</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>preprocess <span class="ot">&lt;-</span> <span class="cf">function</span>(text) {</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    characters_replace <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;!&#39;</span> <span class="ot">=</span> <span class="st">&#39;！&#39;</span>, <span class="st">&#39;&quot;&#39;</span> <span class="ot">=</span> <span class="st">&#39;”&#39;</span>, <span class="st">&#39;#&#39;</span> <span class="ot">=</span> <span class="st">&#39;＃&#39;</span>, <span class="st">&#39;$&#39;</span> <span class="ot">=</span> <span class="st">&#39;＄&#39;</span>, <span class="st">&#39;%&#39;</span> <span class="ot">=</span> <span class="st">&#39;％&#39;</span>,</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;&amp;&#39;</span> <span class="ot">=</span> <span class="st">&#39;＆&#39;</span>, <span class="st">&#39;</span><span class="sc">\&#39;</span><span class="st">&#39;</span> <span class="ot">=</span> <span class="st">&#39;’&#39;</span>, <span class="st">&#39;(&#39;</span> <span class="ot">=</span> <span class="st">&#39;（&#39;</span>, <span class="st">&#39;)&#39;</span> <span class="ot">=</span> <span class="st">&#39;）&#39;</span>, <span class="st">&#39;*&#39;</span> <span class="ot">=</span> <span class="st">&#39;＊&#39;</span>,</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;+&#39;</span> <span class="ot">=</span> <span class="st">&#39;＋&#39;</span>, <span class="st">&#39;,&#39;</span> <span class="ot">=</span> <span class="st">&#39;，&#39;</span>, <span class="st">&#39;-&#39;</span> <span class="ot">=</span> <span class="st">&#39;−&#39;</span>, <span class="st">&#39;.&#39;</span> <span class="ot">=</span> <span class="st">&#39;．&#39;</span>, <span class="st">&#39;/&#39;</span> <span class="ot">=</span> <span class="st">&#39;／&#39;</span>,</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;:&#39;</span> <span class="ot">=</span> <span class="st">&#39;：&#39;</span>, <span class="st">&#39;;&#39;</span> <span class="ot">=</span> <span class="st">&#39;；&#39;</span>, <span class="st">&#39;&lt;&#39;</span> <span class="ot">=</span> <span class="st">&#39;＜&#39;</span>, <span class="st">&#39;=&#39;</span> <span class="ot">=</span> <span class="st">&#39;＝&#39;</span>, <span class="st">&#39;&gt;&#39;</span> <span class="ot">=</span> <span class="st">&#39;＞&#39;</span>,</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;?&#39;</span> <span class="ot">=</span> <span class="st">&#39;？&#39;</span>, <span class="st">&#39;@&#39;</span> <span class="ot">=</span> <span class="st">&#39;＠&#39;</span>, <span class="st">&#39;[&#39;</span> <span class="ot">=</span> <span class="st">&#39;［&#39;</span>, <span class="st">&#39;</span><span class="sc">\\</span><span class="st">&#39;</span> <span class="ot">=</span> <span class="st">&#39;＼&#39;</span>, <span class="st">&#39;]&#39;</span> <span class="ot">=</span> <span class="st">&#39;］&#39;</span>,</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;^&#39;</span> <span class="ot">=</span> <span class="st">&#39;＾&#39;</span>, <span class="st">&#39;_&#39;</span> <span class="ot">=</span> <span class="st">&#39;＿&#39;</span>, <span class="st">&#39;`&#39;</span> <span class="ot">=</span> <span class="st">&#39;｀&#39;</span>, <span class="st">&#39;{&#39;</span> <span class="ot">=</span> <span class="st">&#39;｛&#39;</span>, <span class="st">&#39;|&#39;</span> <span class="ot">=</span> <span class="st">&#39;｜&#39;</span>,</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;}&#39;</span> <span class="ot">=</span> <span class="st">&#39;｝&#39;</span>, <span class="st">&#39;</span><span class="sc">\\</span><span class="st">r</span><span class="sc">\\</span><span class="st">n&#39;</span> <span class="ot">=</span> <span class="st">&#39;</span><span class="sc">\\</span><span class="st">n&#39;</span>, <span class="st">&#39;</span><span class="sc">\\</span><span class="st">r&#39;</span> <span class="ot">=</span> <span class="st">&#39;</span><span class="sc">\\</span><span class="st">n&#39;</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    zenkaku_leftsingle <span class="ot">&lt;-</span> <span class="st">&#39;</span><span class="sc">\xe2\x80\x98</span><span class="st">&#39;</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Encoding</span>(zenkaku_leftsingle) <span class="ot">&lt;-</span> <span class="st">&quot;UTF-8&quot;</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>    text <span class="sc">%&gt;%</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stri_trans_nfkc</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_replace_all</span>(<span class="fu">coll</span>(characters_replace)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_replace_all</span>(<span class="st">&#39;[’´｀]&#39;</span>, zenkaku_leftsingle)</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="co"># LIWCの内部処理を模した形態素解析（\bに該当する区切り文字（記号）を削除）</span></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>preprocess_liwc <span class="ot">&lt;-</span> <span class="cf">function</span>(text) {</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>    text <span class="sc">%&gt;%</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_remove_all</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">*|:|</span><span class="sc">\\</span><span class="st">|&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_split</span>(<span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>        <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_remove_all</span>(<span class="st">&quot;^[－、。，．・：；？！゛゜｀＾＿〃／〜｜’”（）〔〕［］｛｝〈〉《》「」『』【】＋＝＜＞￥＄％＃＆＊＠〒〓]$&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stri_remove_empty</span>()</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a><span class="co"># separate vectors into n parts</span></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>chunk2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x, n) <span class="fu">split</span>(x, <span class="fu">cut</span>(<span class="fu">seq_along</span>(x), n, <span class="at">labels =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a><span class="co"># 形態素解析 (MeCab)</span></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="co"># liwclike: 区切り文字を除外するか（LIWC compatible）</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>count_mecab <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">liwclike =</span> <span class="cn">TRUE</span>, <span class="at">lang =</span> <span class="fu">c</span>(<span class="st">&quot;en&quot;</span>, <span class="st">&quot;ja&quot;</span>)) {</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>  <span class="co"># カテゴリーのラベル（デフォルトは英語）</span></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>  lang <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(lang)</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>  <span class="co"># MeCabによる形態素解析</span></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nchar</span>(text)</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>    buffer <span class="ot">&lt;-</span> <span class="dv">8192</span><span class="sc">*</span><span class="dv">3</span> <span class="co"># MeCabのバッファサイズ</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (n <span class="sc">&gt;</span> buffer) {</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># parallel processing</span></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>        np <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(n <span class="sc">/</span> ncores)</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">str_count</span>(text, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="sc">&lt;</span> np) {</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>            text <span class="ot">&lt;-</span> <span class="fu">str_replace_all</span>(text, <span class="st">&quot;&quot;</span>,</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>              <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">&quot;？&quot;</span> <span class="ot">=</span> <span class="st">&quot;？</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="st">&quot;　&quot;</span> <span class="ot">=</span> <span class="st">&quot;　</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="st">&quot;。&quot;</span> <span class="ot">=</span> <span class="st">&quot;。</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>        text_split <span class="ot">&lt;-</span> <span class="fu">str_split</span>(text, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span></span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>            <span class="fu">chunk2</span>(., ncores) <span class="sc">%&gt;%</span></span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>            <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">paste</span>(., <span class="at">collapse =</span> <span class="st">&quot; &quot;</span>))</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>        text_df <span class="ot">&lt;-</span> text_split <span class="sc">%&gt;%</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>            <span class="fu">future_map</span>(<span class="sc">~</span> <span class="fu">pos</span>(., <span class="at">join =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>                             <span class="at">format =</span> <span class="st">&quot;data.frame&quot;</span>, <span class="at">user_dic =</span> USERDIC),</span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>            <span class="at">.options =</span> <span class="fu">furrr_options</span>(<span class="at">seed =</span> <span class="cn">NULL</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>            <span class="fu">bind_rows</span>()</span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>        text_df <span class="ot">&lt;-</span> <span class="fu">pos</span>(text, <span class="at">join =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>                       <span class="at">format =</span> <span class="st">&quot;data.frame&quot;</span>, <span class="at">user_dic =</span> USERDIC)</span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>    <span class="co"># LIWC2015準拠の区切り文字除外    </span></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (liwclike) {</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>        text_df <span class="ot">&lt;-</span> text_df <span class="sc">%&gt;%</span></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(token <span class="sc">%in%</span> <span class="fu">preprocess_liwc</span>(text_df<span class="sc">$</span>token))</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>    WC <span class="ot">&lt;-</span> <span class="fu">nrow</span>(text_df)</span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>    wakati <span class="ot">&lt;-</span> text_df<span class="sc">$</span>token</span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>    text_pos <span class="ot">&lt;-</span> (<span class="fu">table</span>(text_df<span class="sc">$</span>pos) <span class="sc">/</span> WC <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 英語の場合、ラベルを変更</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lang <span class="sc">==</span> <span class="st">&quot;en&quot;</span>) {</span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(text_pos) <span class="ot">&lt;-</span> <span class="fu">unname</span>(MECAB_LOOKUP[<span class="fu">names</span>(text_pos)])</span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">WC =</span> WC, <span class="at">wakati =</span> wakati, <span class="at">pos =</span> <span class="fu">as.data.frame</span>(<span class="fu">rbind</span>(text_pos)))</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a><span class="co"># 前処理とLIWCスタイルの解析（input: テキスト, dict: J-LIWC2015辞書）</span></span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>liwc_analysis <span class="ot">&lt;-</span> <span class="cf">function</span>(input, dict, <span class="at">lang =</span> <span class="fu">c</span>(<span class="st">&quot;en&quot;</span>, <span class="st">&quot;ja&quot;</span>),</span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>                           <span class="at">pos_tag =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>  <span class="co"># カテゴリーのラベル（デフォルトは英語）</span></span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>  lang <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(lang)</span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 前処理</span></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>  text <span class="ot">&lt;-</span> input <span class="sc">%&gt;%</span></span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">preprocess</span>(.) <span class="sc">%&gt;%</span></span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>            <span class="fu">count_mecab</span>(., <span class="at">lang =</span> lang))</span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(<span class="fu">names</span>(text))) { <span class="fu">names</span>(text) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;text&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text)) }</span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>  WC <span class="ot">&lt;-</span> <span class="fu">map_int</span>(text, <span class="sc">~</span> .x[[<span class="st">&quot;WC&quot;</span>]])</span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 辞書語のカウント</span></span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>  dict_count <span class="ot">&lt;-</span> text <span class="sc">%&gt;%</span></span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(<span class="sc">~</span> .x[[<span class="st">&quot;wakati&quot;</span>]]) <span class="sc">%&gt;%</span></span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.tokens</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dfm</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dfm_lookup</span>(<span class="at">dictionary =</span> dict, <span class="at">nomatch =</span> <span class="st">&quot;nomatch&quot;</span>)</span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a>  dict_proportion <span class="ot">&lt;-</span> (dict_count <span class="sc">/</span> WC) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>    dfr <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Filename =</span> <span class="fu">names</span>(text),   <span class="at">WC =</span> WC) <span class="sc">%&gt;%</span></span>
+<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bind_cols</span>(dict_proportion <span class="sc">%&gt;%</span> <span class="fu">convert</span>(<span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">Dic =</span> <span class="dv">100</span> <span class="sc">-</span> nomatch) <span class="sc">%&gt;%</span> <span class="co"># % of dictionary words</span></span>
+<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(<span class="sc">-</span>doc_id, <span class="sc">-</span>nomatch) <span class="sc">%&gt;%</span></span>
+<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a>      <span class="fu">relocate</span>(Filename, WC, Dic)</span>
+<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 日本語のラベル</span></span>
+<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lang <span class="sc">==</span> <span class="st">&quot;ja&quot;</span>) {</span>
+<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>      dfr <span class="ot">&lt;-</span> dfr <span class="sc">%&gt;%</span> <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">all_of</span>(LIWC_CAT_JA), <span class="fu">all_of</span>(LIWC_CAT_EN))</span>
+<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a>    <span class="co"># MeCabのカテゴリーを付与</span></span>
+<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (pos_tag) {</span>
+<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>      pos <span class="ot">&lt;-</span> <span class="fu">map_df</span>(text, <span class="sc">~</span> .x[[<span class="st">&quot;pos&quot;</span>]])</span>
+<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>      <span class="fu">names</span>(pos) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">names</span>(pos), <span class="st">&quot;2&quot;</span>) <span class="co"># MeCabのカテゴリーには「2」を付加</span></span>
+<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>        dfr <span class="ot">&lt;-</span> dfr <span class="sc">%&gt;%</span></span>
+<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a>          <span class="fu">bind_cols</span>(pos)</span>
+<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a>          <span class="co"># MeCabのカテゴリーのNAを0に置換</span></span>
+<span id="cb7-182"><a href="#cb7-182" aria-hidden="true" tabindex="-1"></a>    dfr[<span class="fu">is.na</span>(dfr)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb7-183"><a href="#cb7-183" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a>    dfr</span>
+<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="辞書ファイルの読み込み" class="section level2">
+<h2>辞書ファイルの読み込み</h2>
+<p>このチュートリアルは、以下のようなディレクトリ（フォルダ）構成で進めます。ディレクトリはあらかじめ作成しておいてください。辞書ファイルはいずれか一方のみで問題ありません。</p>
+<pre><code>Documents/
+　└ J-LIWC2015/
+　　　├ data/ 解析対象のファイルの場所（作業ディレクトリ）
+　　　├ dic/ J-LIWC2015の辞書ファイルの場所
+　　　│　├ Japanese_Dictionary.dic （LIWC2015形式）
+　　　│　└ LIWC2015 Dictionary - Japanese.dicx（LIWC-22形式）
+　　　└ result/ 結果の出力先ディレクトリ</code></pre>
+<div class="figure">
+<img src="folder.png" alt="" />
+<p class="caption">ディレクトリ構成（/dic/に辞書ファイルが含まれる）</p>
+</div>
+<p><code>ユーザー名</code>の部分は、自分のディレクトリ構成に合わせて書き換えてください。</p>
+<p><code>dic</code>に辞書ファイルのパスを指定します。LIWC2015形式（拡張子<code>.dic</code>）の場合は、<code>read_dict()</code>で読み込んでください。LIWC-22形式（拡張子<code>.dicx</code>）の場合は、<code>read_dict22()</code>で読み込んでください。いずれも<a href="https://quanteda.io/" target="_blank">quantedaパッケージ</a>を利用しています。</p>
+<p><code>dir_data</code>に解析対象のファイルが含まれる作業ディレクトリ（<code>data</code>）のパスを指定します（このチュートリアルでは、先に作業ディレクトリのパスを指定し、解析対象のファイルは後ほど<a href="https://www.aozora.gr.jp/" target="_blank">青空文庫</a>からダウンロードします）。<code>dir_result</code>には、結果の出力先ディレクトリ（<code>result</code>）を指定します。</p>
+<p>Windowsのエクスプローラー等で表示されるパスは、Rでは直接指定できません。また、WindowsとWSLではファイルの場所の記述法が異なります。<code>\</code>は<code>/</code>で、ドライブレターは<code>/mnt/c/</code>のように記述してください（例：<code>C:\Users\</code> → <code>/mnt/c/Users/</code>）。</p>
+<p>作業ディレクトリ（<code>data</code>）には、解析対象のファイル以外は置かないでください。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書ファイルの場所（LIWC2015形式）</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="st">&quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/dic/Japanese_Dictionary.dic&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書ファイルの読み込み（LIWC2015形式）</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>dictliwc <span class="ot">&lt;-</span> <span class="fu">read_dict</span>(dic)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書ファイルの場所（LIWC22形式）</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># dic &lt;- &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/dic/LIWC2015 Dictionary - Japanese.dicx&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 辞書ファイルの読み込み（LIWC22形式）</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># dictliwc &lt;- read_dict22(dic)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 作業ディレクトリ（解析対象のファイルの場所）の指定</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>dir_data <span class="ot">&lt;-</span> <span class="st">&quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(dir_data)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 結果の出力先ディレクトリ</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>dir_result <span class="ot">&lt;-</span> <span class="st">&quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/result&quot;</span></span></code></pre></div>
+<p>MeCabのユーザー辞書（GitHub）を読み込みます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GitHubからMeCabのユーザー辞書読み込み</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>user_dic <span class="ot">&lt;-</span> <span class="st">&#39;user_dict.dic&#39;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>USERDIC <span class="ot">&lt;-</span> <span class="fu">file.path</span>(temp, user_dic)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(USERDIC)) { </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">download.file</span>(<span class="st">&quot;https://github.com/tasukuigarashi/j-liwc2015/raw/main/user_dict.dic&quot;</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">destfile =</span> USERDIC)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="サンプルデータ読み込み" class="section level2">
+<h2>サンプルデータ読み込み</h2>
+<p>サンプルデータとして、<a href="https://github.com/paithiov909/ldccr" target="_blank">ldccrパッケージ</a>を用いて、青空文庫から作品のテキストのみを作業ディレクトリ（<code>data</code>）にダウンロードします<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>。</p>
+<p>手元のデータを解析する場合は、ここはスキップしてください。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use the ldccr package and scripts</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_install_gh</span>(<span class="st">&quot;paithiov909/ldccr&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ldccr)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 青空文庫から作品をダウンロード</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">5</span> <span class="co"># 作品の本数</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>AozoraBunkoSnapshot <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(n) <span class="sc">%&gt;%</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(<span class="st">&quot;テキストファイルURL&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_chr</span>(<span class="sc">~</span> <span class="fu">read_aozora</span>(., <span class="at">directory =</span> dir_data))</span></code></pre></div>
+</div>
+<div id="解析対象のファイルの指定" class="section level2">
+<h2>解析対象のファイルの指定</h2>
+<p>作業ディレクトリ（<code>data</code>）から解析対象のファイルの一覧を取得します。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 分析対象のファイル一覧</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(dir_data, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>files</span></code></pre></div>
+<pre><code>## [1] &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data/01hashigakini_kaete_zuisoroku.txt&quot;
+## [2] &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data/aru_eijigoroshi.txt&quot;              
+## [3] &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data/haru.txt&quot;                         
+## [4] &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data/kamino_tsurugi.txt&quot;               
+## [5] &quot;/mnt/c/Users/ユーザー名/Documents/J-LIWC2015/data/sosekishito_watashi.txt&quot;</code></pre>
+</div>
+<div id="ファイルの読み込み" class="section level2">
+<h2>ファイルの読み込み</h2>
+<p>テキストファイルをリスト形式で読み込みます。リストにはファイル名で名前をつけておきます（解析時に使用されます）。</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ファイルの読み込み</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> files <span class="sc">%&gt;%</span> <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">read_file</span>(.))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(text) <span class="ot">&lt;-</span> <span class="fu">basename</span>(files)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>text[<span class="dv">1</span>] <span class="co"># テキストの表示</span></span></code></pre></div>
+<pre><code>## $`01hashigakini_kaete_zuisoroku.txt`
+## [1] &quot;モンテーニュ随想録\nESSAIS DE MONTAIGNE\nはしがきに代えて――モンテーニュとの六十年――\n関根秀雄\n　初めてモンテーニュの名を知ったのは大正五年東大仏文研究室におけるエック先生の講義によってであった。聴講者は鈴木信太郎、須川弥作、岸田國士、井汲清治、それに私の五人、当時「仏文はじまって以来の盛況」と言いはやされた。前年は新入生皆無、三年生に山本直文唯一人という時代のことである。私はその名を知っただけでボンヤリしていたが、鈴木君の方は当時刊行中の〈ボルドー市版エセー〉をいつの間にか手に入れ、卒論に「モンテーニュの懐疑思想」を書いてあっぱれ副手となった。\n　私がモンテーニュにのめり込んだのは何年だったかはっきりしないが、勉強のつもりでアルカン版「エセー」を取り寄せ翻訳にかかったのは大正最後の年だったと記憶するから、私とモンテーニュとの付き合いは今や六十年になんなんとする。だがその間に、「仏蘭西文学史」や「仏語動詞時法考」も書いたし、ラ・ブリュイエールの「人さまざま」やブリア・サヴァランの「美味礼賛」の翻訳もしているから、八十の年に公にした「モンテーニュとその時代」のあとがきに「一生モンテーニュ以外には眼もくれなかった一徹な老人」などと自ら定義したのは、いささか言いすぎたと後悔している。\n　事実、昭和十年「モンテーニュ随想録」初版以来、二十七年、三十二年、五十七年と、重版の都度全面的に改修をしたし、ほとんど各章に解説や評注を書き加えもしたし、更に五十一年には「モンテーニュとその時代」、五十五年には「モンテーニュ逍遙」と書き続けずにはいられなかったのであるから、ちょうどそのころ「源氏物語」の仏訳者シフェールさんに会った時も、ついまた私は「モンテーニュのほかはさっぱり不案内で」と言ってしまった。だがそこはさすがにシフェールさん「わたしも源氏以外は何も知りません」と答えてくれた。\n　さて「随想録」初版のはしがきに私はこう書いている。「私が此本の翻訳に志したのはもっぱら自身自家のためであった。生れつき病弱で神経のかぼそい私自身のために、また不治の病患を背負っていわば人生の旅路に行きなやんでいる家族の一人のために、幸福と長寿の道を学ぼうとしたのがそもそもの始まりであった」と。そのひとりはわが稿の完成を待たずに昇天してしまったが、残された私の方は思わざる長寿をめぐまれて、ここにこうして、至極幸福に生きている。ひとえにこれモンテーニュのお陰と言うほかはない。\n　今ここに有名な「モンテーニュ全集」の編者アルマンゴー医博がいあわせたら「そうだ、それにちがいない」と太鼓判を押してくれただろう。この人は十歳にしてモンテーニュを知り、一九一三年にモンテーニュ学会を創立し、晩年には日本のトゥーリストたちもおそらくご覧になったと思う、あのソルボンヌ前広場にあるモンテーニュ像をパリ市に寄贈した上、九十二歳の高齢で大往生をとげた不朽のモンテーニュ学者であるが、その専門だった衛生学の学会誌に「中年から随想録の愛読者になった人たちは、そうでない人たちより十年や十五年は長生きをしている」と報告している。\n　顧みると私が「随想録」の翻訳に取りかかったのはまさに満州事変勃発の前夜、三十一歳の時であったが、モンテーニュがエセーを書き始めたのも血腥い宗教戦争の最中、一五七二、三年ごろで、まさにかの聖バルテルミ祭大虐殺の前夜であった。\n　彼はそれよりさき一五六三年三十歳のとき親友ラ・ボエシと死別して以来、原因不明の、何とも名状しがたい不安な毎日――彼自ら※ただ煙り……暗くわびしい夜※と書いている――いわゆる〈実存の不安〉のただ中に暮らしていた。何をする気にもなれず、さりとて何もせずにいればますます居たたまれない気持ちに落ち込んでゆく、そうした気分を、彼は〈無為について〉〈孤独について〉の両章につぶさに述べているが、これはモンテーニュだけのことではなかった。それは古今東西を問わず乱世に生を享けたすべての〈在野の閑人〉、思い高きすべてのインテリたちが、例外なくまともにぶつかった〈実存の不安〉、〈人間の問い〉そのものであった。\n　これに答えるために、彼らはどうしても「名利にとらわれて静かなるいとまもなく、蟻の如く集まりて東西にいそぎ南北にはしる」世間の俗物と断然交わりを絶って独りになり、〈自分対自分〉の対話に沈潜しないではいられなかった。かくて兼好も長明も淵明も、「森の生活」の著者ソーローもわがモンテーニュも、皆ひとりになることを求めたのであり、中国の戦国時代も、幾多の隠逸の士とその詩文とを生んだのである。\n　だがまちがえてはいけない。それは決して単なる逃避には終わらなかった。それは積極的な一種独特な生活態度、反体制者の生活の一つの型を生んだ。だからモンテーニュもあの塔の三階にたてこもって閑寂な日々を楽しんでばかりはいなかった。戦争にも参加したし、政治外交の世界では、後年即位早々の国王アンリ四世から、最高顧問として就任するようにとの親書を賜るほどの実力を示したのである。「きけわだつみのこえ」の若き戦士たちも、だから「随想録」をふところに戦場に赴いたし、私もまた戦中戦後を通じて、このモンテーニュの生き方にならって生きながらえて来たのである。\n　ところで今、八十八年をこの日本という国に生きて、何が一体我々に欠けているかと考えて見ると、それは〈モラル〉だと答えるのに私は躊躇しない。昔は孔孟の教えとか皇道精神とやらもあったけれども、今の我々には果たしていかなるモラルの拠りどころがあるか。民主主義国ともなればそんなものは一切いらないのか。神様にも天皇にもよらない〈人間のモラル〉を、どこかに捜し求めようと努めないでよいのだろうか。\n　サント・ブーヴはかのフランス大革命で何もかも失ってただ愚痴ばかりこぼしている同胞に向かって、「もう一度明※と節度とを取り戻すべく、随想録を毎晩一ページずつ読みなおそうではないか」と言った。そこには〈自分対自分〉の対決から生まれ出る我々のモラル、モンテーニュが言うところの※ユメーヌ・コンディシオン※を踏んまえて立つ〈人間のモラル〉がある。しかもそれが抽象論としてではなく賢愚尊卑老若男女の生態の生々しい描写を通じて示されているのだ。それは自由と徳性との美しい調和である。（『朝日新聞』夕刊　一九八三年二月二十一日）\n&quot;</code></pre>
+</div>
+<div id="j-liwc2015による解析" class="section level2">
+<h2>J-LIWC2015による解析</h2>
+<p><a href="https://quanteda.io/" target="_blank">quantedaパッケージ</a>を利用して、LIWC2015ソフトウェアと（ほぼ）同等の解析を行います。<code>liwc_analysis()</code>に、解析するテキストのリスト、辞書ファイルのオブジェクトを与えると、解析結果が得られます。</p>
+<p><code>WC</code>は総単語数、<code>Dic</code>は辞書語の割合（%）です。<code>function</code>以降の列は各カテゴリに含まれる単語の出現割合（%）です。</p>
+<p>末尾に「2」がつくカテゴリ（<code>verb2</code>など）は、MeCabで分類された文法カテゴリです。</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LIWC2015形式のアウトプット</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>liwc_results <span class="ot">&lt;-</span> <span class="fu">liwc_analysis</span>(text, dictliwc)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 英語ラベル</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>liwc_results</span></code></pre></div>
+<div class="kable-table">
+<table>
+<colgroup>
+<col width="5%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Filename</th>
+<th align="right">WC</th>
+<th align="right">Dic</th>
+<th align="right">function</th>
+<th align="right">pronoun</th>
+<th align="right">ppron</th>
+<th align="right">i</th>
+<th align="right">we</th>
+<th align="right">you</th>
+<th align="right">shehe</th>
+<th align="right">they</th>
+<th align="right">ipron</th>
+<th align="right">casepart</th>
+<th align="right">auxverb</th>
+<th align="right">adverb</th>
+<th align="right">conj</th>
+<th align="right">negate</th>
+<th align="right">verb</th>
+<th align="right">interrog</th>
+<th align="right">number</th>
+<th align="right">quant</th>
+<th align="right">adjverb</th>
+<th align="right">preadj</th>
+<th align="right">affect</th>
+<th align="right">posemo</th>
+<th align="right">negemo</th>
+<th align="right">anx</th>
+<th align="right">anger</th>
+<th align="right">sad</th>
+<th align="right">social</th>
+<th align="right">family</th>
+<th align="right">friend</th>
+<th align="right">female</th>
+<th align="right">male</th>
+<th align="right">cogproc</th>
+<th align="right">insight</th>
+<th align="right">cause</th>
+<th align="right">discrep</th>
+<th align="right">tentat</th>
+<th align="right">certain</th>
+<th align="right">differ</th>
+<th align="right">percept</th>
+<th align="right">see</th>
+<th align="right">hear</th>
+<th align="right">feel</th>
+<th align="right">bio</th>
+<th align="right">body</th>
+<th align="right">health</th>
+<th align="right">sexual</th>
+<th align="right">ingest</th>
+<th align="right">drives</th>
+<th align="right">affiliation</th>
+<th align="right">achieve</th>
+<th align="right">power</th>
+<th align="right">reward</th>
+<th align="right">risk</th>
+<th align="right">relativ</th>
+<th align="right">motion</th>
+<th align="right">space</th>
+<th align="right">time</th>
+<th align="right">work</th>
+<th align="right">leisure</th>
+<th align="right">home</th>
+<th align="right">money</th>
+<th align="right">relig</th>
+<th align="right">death</th>
+<th align="right">informal</th>
+<th align="right">swear</th>
+<th align="right">netspeak</th>
+<th align="right">assent</th>
+<th align="right">nonflu</th>
+<th align="right">filler</th>
+<th align="right">symbol2</th>
+<th align="right">adj2</th>
+<th align="right">particle2</th>
+<th align="right">auxverb2</th>
+<th align="right">conj2</th>
+<th align="right">prefix2</th>
+<th align="right">verb2</th>
+<th align="right">adverb2</th>
+<th align="right">noun2</th>
+<th align="right">preadj2</th>
+<th align="right">others2</th>
+<th align="right">filler2</th>
+<th align="right">interject2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">01hashigakini_kaete_zuisoroku.txt</td>
+<td align="right">1380</td>
+<td align="right">73.2</td>
+<td align="right">44.6</td>
+<td align="right">4.20</td>
+<td align="right">1.74</td>
+<td align="right">1.159</td>
+<td align="right">0.580</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.072</td>
+<td align="right">2.68</td>
+<td align="right">31.7</td>
+<td align="right">4.35</td>
+<td align="right">3.55</td>
+<td align="right">4.86</td>
+<td align="right">2.39</td>
+<td align="right">5.58</td>
+<td align="right">0.435</td>
+<td align="right">4.493</td>
+<td align="right">0.507</td>
+<td align="right">0.145</td>
+<td align="right">0.507</td>
+<td align="right">2.83</td>
+<td align="right">1.522</td>
+<td align="right">1.159</td>
+<td align="right">0.290</td>
+<td align="right">0.290</td>
+<td align="right">0.435</td>
+<td align="right">3.188</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.000</td>
+<td align="right">0.217</td>
+<td align="right">5.94</td>
+<td align="right">1.667</td>
+<td align="right">1.159</td>
+<td align="right">0.652</td>
+<td align="right">0.870</td>
+<td align="right">1.522</td>
+<td align="right">0.507</td>
+<td align="right">1.16</td>
+<td align="right">0.507</td>
+<td align="right">0.507</td>
+<td align="right">0.072</td>
+<td align="right">1.087</td>
+<td align="right">0.217</td>
+<td align="right">0.797</td>
+<td align="right">0.000</td>
+<td align="right">0.072</td>
+<td align="right">3.48</td>
+<td align="right">0.870</td>
+<td align="right">0.797</td>
+<td align="right">1.449</td>
+<td align="right">0.362</td>
+<td align="right">0.507</td>
+<td align="right">11.7</td>
+<td align="right">0.797</td>
+<td align="right">1.67</td>
+<td align="right">9.42</td>
+<td align="right">1.739</td>
+<td align="right">0.217</td>
+<td align="right">0.145</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.290</td>
+<td align="right">0.870</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.072</td>
+<td align="right">0.507</td>
+<td align="right">0.072</td>
+<td align="right">0.652</td>
+<td align="right">0.942</td>
+<td align="right">30.1</td>
+<td align="right">9.71</td>
+<td align="right">0.870</td>
+<td align="right">0.507</td>
+<td align="right">11.9</td>
+<td align="right">2.25</td>
+<td align="right">41.7</td>
+<td align="right">1.377</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">aru_eijigoroshi.txt</td>
+<td align="right">6506</td>
+<td align="right">76.4</td>
+<td align="right">45.6</td>
+<td align="right">4.73</td>
+<td align="right">1.38</td>
+<td align="right">0.415</td>
+<td align="right">0.092</td>
+<td align="right">0.092</td>
+<td align="right">0.753</td>
+<td align="right">0.046</td>
+<td align="right">3.41</td>
+<td align="right">29.5</td>
+<td align="right">6.53</td>
+<td align="right">3.86</td>
+<td align="right">6.96</td>
+<td align="right">2.72</td>
+<td align="right">6.59</td>
+<td align="right">0.661</td>
+<td align="right">1.291</td>
+<td align="right">0.461</td>
+<td align="right">0.077</td>
+<td align="right">0.354</td>
+<td align="right">2.34</td>
+<td align="right">0.784</td>
+<td align="right">1.429</td>
+<td align="right">0.215</td>
+<td align="right">0.815</td>
+<td align="right">0.277</td>
+<td align="right">5.902</td>
+<td align="right">1.322</td>
+<td align="right">0.523</td>
+<td align="right">0.938</td>
+<td align="right">1.537</td>
+<td align="right">4.90</td>
+<td align="right">1.353</td>
+<td align="right">0.984</td>
+<td align="right">0.154</td>
+<td align="right">1.399</td>
+<td align="right">0.676</td>
+<td align="right">1.337</td>
+<td align="right">1.55</td>
+<td align="right">0.630</td>
+<td align="right">0.553</td>
+<td align="right">0.354</td>
+<td align="right">1.967</td>
+<td align="right">0.938</td>
+<td align="right">0.661</td>
+<td align="right">0.231</td>
+<td align="right">0.354</td>
+<td align="right">3.07</td>
+<td align="right">0.523</td>
+<td align="right">0.476</td>
+<td align="right">1.906</td>
+<td align="right">0.231</td>
+<td align="right">0.261</td>
+<td align="right">13.5</td>
+<td align="right">1.829</td>
+<td align="right">3.61</td>
+<td align="right">8.84</td>
+<td align="right">1.368</td>
+<td align="right">0.231</td>
+<td align="right">0.307</td>
+<td align="right">0.569</td>
+<td align="right">0.092</td>
+<td align="right">0.523</td>
+<td align="right">3.259</td>
+<td align="right">0.077</td>
+<td align="right">0.031</td>
+<td align="right">0.492</td>
+<td align="right">1.445</td>
+<td align="right">0.430</td>
+<td align="right">0.031</td>
+<td align="right">1.752</td>
+<td align="right">32.0</td>
+<td align="right">12.48</td>
+<td align="right">1.645</td>
+<td align="right">0.492</td>
+<td align="right">15.4</td>
+<td align="right">2.67</td>
+<td align="right">31.2</td>
+<td align="right">1.814</td>
+<td align="right">0.015</td>
+<td align="right">0.123</td>
+<td align="right">0.292</td>
+</tr>
+<tr class="odd">
+<td align="left">haru.txt</td>
+<td align="right">389</td>
+<td align="right">64.0</td>
+<td align="right">41.4</td>
+<td align="right">3.86</td>
+<td align="right">1.28</td>
+<td align="right">1.028</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">2.83</td>
+<td align="right">29.3</td>
+<td align="right">4.37</td>
+<td align="right">2.06</td>
+<td align="right">7.71</td>
+<td align="right">1.54</td>
+<td align="right">6.17</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">1.28</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">2.83</td>
+<td align="right">0.771</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">5.66</td>
+<td align="right">2.571</td>
+<td align="right">2.057</td>
+<td align="right">0.514</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">1.54</td>
+<td align="right">0.257</td>
+<td align="right">0.514</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">13.9</td>
+<td align="right">2.828</td>
+<td align="right">3.60</td>
+<td align="right">8.23</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.514</td>
+<td align="right">3.599</td>
+<td align="right">34.7</td>
+<td align="right">8.48</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">16.2</td>
+<td align="right">2.31</td>
+<td align="right">32.6</td>
+<td align="right">0.514</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">kamino_tsurugi.txt</td>
+<td align="right">8389</td>
+<td align="right">70.6</td>
+<td align="right">42.8</td>
+<td align="right">4.40</td>
+<td align="right">2.04</td>
+<td align="right">0.524</td>
+<td align="right">0.250</td>
+<td align="right">0.417</td>
+<td align="right">0.942</td>
+<td align="right">0.036</td>
+<td align="right">2.35</td>
+<td align="right">27.8</td>
+<td align="right">4.74</td>
+<td align="right">3.78</td>
+<td align="right">5.57</td>
+<td align="right">3.06</td>
+<td align="right">6.01</td>
+<td align="right">0.346</td>
+<td align="right">0.811</td>
+<td align="right">0.620</td>
+<td align="right">0.131</td>
+<td align="right">0.334</td>
+<td align="right">3.62</td>
+<td align="right">2.479</td>
+<td align="right">1.085</td>
+<td align="right">0.238</td>
+<td align="right">0.489</td>
+<td align="right">0.262</td>
+<td align="right">4.637</td>
+<td align="right">0.226</td>
+<td align="right">0.274</td>
+<td align="right">0.405</td>
+<td align="right">1.597</td>
+<td align="right">3.97</td>
+<td align="right">0.930</td>
+<td align="right">0.763</td>
+<td align="right">0.298</td>
+<td align="right">1.001</td>
+<td align="right">0.799</td>
+<td align="right">0.811</td>
+<td align="right">3.79</td>
+<td align="right">2.253</td>
+<td align="right">0.679</td>
+<td align="right">0.739</td>
+<td align="right">2.098</td>
+<td align="right">1.717</td>
+<td align="right">0.226</td>
+<td align="right">0.143</td>
+<td align="right">0.095</td>
+<td align="right">3.47</td>
+<td align="right">0.584</td>
+<td align="right">0.858</td>
+<td align="right">2.134</td>
+<td align="right">0.620</td>
+<td align="right">0.179</td>
+<td align="right">11.6</td>
+<td align="right">2.158</td>
+<td align="right">4.42</td>
+<td align="right">5.78</td>
+<td align="right">0.715</td>
+<td align="right">1.287</td>
+<td align="right">0.465</td>
+<td align="right">0.608</td>
+<td align="right">0.286</td>
+<td align="right">0.024</td>
+<td align="right">1.466</td>
+<td align="right">0.012</td>
+<td align="right">0.024</td>
+<td align="right">0.143</td>
+<td align="right">0.668</td>
+<td align="right">0.083</td>
+<td align="right">0.739</td>
+<td align="right">2.515</td>
+<td align="right">31.6</td>
+<td align="right">9.73</td>
+<td align="right">1.109</td>
+<td align="right">0.691</td>
+<td align="right">16.0</td>
+<td align="right">2.88</td>
+<td align="right">32.5</td>
+<td align="right">2.003</td>
+<td align="right">0.000</td>
+<td align="right">0.060</td>
+<td align="right">0.226</td>
+</tr>
+<tr class="odd">
+<td align="left">sosekishito_watashi.txt</td>
+<td align="right">38950</td>
+<td align="right">71.0</td>
+<td align="right">41.1</td>
+<td align="right">3.57</td>
+<td align="right">1.42</td>
+<td align="right">1.024</td>
+<td align="right">0.036</td>
+<td align="right">0.244</td>
+<td align="right">0.054</td>
+<td align="right">0.039</td>
+<td align="right">2.23</td>
+<td align="right">28.1</td>
+<td align="right">4.92</td>
+<td align="right">3.89</td>
+<td align="right">5.39</td>
+<td align="right">1.97</td>
+<td align="right">5.73</td>
+<td align="right">0.372</td>
+<td align="right">3.474</td>
+<td align="right">0.683</td>
+<td align="right">0.116</td>
+<td align="right">0.264</td>
+<td align="right">2.44</td>
+<td align="right">1.479</td>
+<td align="right">0.873</td>
+<td align="right">0.072</td>
+<td align="right">0.390</td>
+<td align="right">0.146</td>
+<td align="right">5.163</td>
+<td align="right">0.211</td>
+<td align="right">0.357</td>
+<td align="right">0.259</td>
+<td align="right">0.277</td>
+<td align="right">4.13</td>
+<td align="right">0.978</td>
+<td align="right">0.834</td>
+<td align="right">0.467</td>
+<td align="right">0.842</td>
+<td align="right">0.665</td>
+<td align="right">0.685</td>
+<td align="right">1.61</td>
+<td align="right">0.893</td>
+<td align="right">0.403</td>
+<td align="right">0.234</td>
+<td align="right">0.953</td>
+<td align="right">0.549</td>
+<td align="right">0.198</td>
+<td align="right">0.008</td>
+<td align="right">0.218</td>
+<td align="right">3.58</td>
+<td align="right">0.755</td>
+<td align="right">0.955</td>
+<td align="right">1.854</td>
+<td align="right">0.306</td>
+<td align="right">0.252</td>
+<td align="right">12.7</td>
+<td align="right">2.082</td>
+<td align="right">2.96</td>
+<td align="right">8.66</td>
+<td align="right">1.561</td>
+<td align="right">0.783</td>
+<td align="right">0.254</td>
+<td align="right">0.354</td>
+<td align="right">0.064</td>
+<td align="right">0.118</td>
+<td align="right">1.772</td>
+<td align="right">0.036</td>
+<td align="right">0.010</td>
+<td align="right">0.121</td>
+<td align="right">0.947</td>
+<td align="right">0.187</td>
+<td align="right">0.385</td>
+<td align="right">1.422</td>
+<td align="right">29.5</td>
+<td align="right">9.98</td>
+<td align="right">0.742</td>
+<td align="right">1.309</td>
+<td align="right">12.9</td>
+<td align="right">2.40</td>
+<td align="right">40.0</td>
+<td align="right">1.258</td>
+<td align="right">0.000</td>
+<td align="right">0.039</td>
+<td align="right">0.041</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>カテゴリーのラベルを日本語で出力する場合は、<code>lang = 'ja'</code>とします。</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 日本語ラベル</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>liwc_results_ja <span class="ot">&lt;-</span> <span class="fu">liwc_analysis</span>(text,  dictliwc, <span class="at">lang =</span> <span class="st">&quot;ja&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>liwc_results_ja</span></code></pre></div>
+<div class="kable-table">
+<table style="width:100%;">
+<colgroup>
+<col width="4%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="3%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="3%" />
+<col width="2%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="2%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="0%" />
+<col width="0%" />
+<col width="0%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Filename</th>
+<th align="right">WC</th>
+<th align="right">Dic</th>
+<th align="right">機能語</th>
+<th align="right">代名詞</th>
+<th align="right">人称代名詞</th>
+<th align="right">一人称単数</th>
+<th align="right">一人称複数</th>
+<th align="right">二人称</th>
+<th align="right">三人称単数</th>
+<th align="right">三人称複数</th>
+<th align="right">不定代名詞</th>
+<th align="right">格助詞</th>
+<th align="right">助動詞</th>
+<th align="right">副詞</th>
+<th align="right">接続詞</th>
+<th align="right">否定詞</th>
+<th align="right">動詞</th>
+<th align="right">疑問詞</th>
+<th align="right">数詞</th>
+<th align="right">数量詞・助数詞</th>
+<th align="right">形容動詞</th>
+<th align="right">連体詞</th>
+<th align="right">感情プロセス</th>
+<th align="right">ポジティブ感情</th>
+<th align="right">ネガティブ感情</th>
+<th align="right">不安</th>
+<th align="right">怒り</th>
+<th align="right">悲しみ</th>
+<th align="right">社会的（相互作用）プロセス</th>
+<th align="right">家族</th>
+<th align="right">友人</th>
+<th align="right">女性</th>
+<th align="right">男性</th>
+<th align="right">認知プロセス</th>
+<th align="right">洞察</th>
+<th align="right">原因</th>
+<th align="right">不一致</th>
+<th align="right">あいまいさ</th>
+<th align="right">確かさ</th>
+<th align="right">差別化</th>
+<th align="right">知覚プロセス</th>
+<th align="right">視覚・知覚</th>
+<th align="right">聴覚</th>
+<th align="right">感覚（触覚・味覚・嗅覚）</th>
+<th align="right">生物学的プロセス</th>
+<th align="right">身体</th>
+<th align="right">健康</th>
+<th align="right">性</th>
+<th align="right">摂取</th>
+<th align="right">動因</th>
+<th align="right">つながり</th>
+<th align="right">達成</th>
+<th align="right">社会的地位・権力</th>
+<th align="right">報酬</th>
+<th align="right">リスク</th>
+<th align="right">相対性</th>
+<th align="right">動作</th>
+<th align="right">空間</th>
+<th align="right">時間</th>
+<th align="right">仕事・学業</th>
+<th align="right">趣味・余暇</th>
+<th align="right">家</th>
+<th align="right">金銭</th>
+<th align="right">宗教</th>
+<th align="right">死</th>
+<th align="right">インフォーマル</th>
+<th align="right">罵倒</th>
+<th align="right">ネットスラング</th>
+<th align="right">うなずき</th>
+<th align="right">間投詞</th>
+<th align="right">フィラー</th>
+<th align="right">記号2</th>
+<th align="right">形容詞2</th>
+<th align="right">助詞2</th>
+<th align="right">助動詞2</th>
+<th align="right">接続詞2</th>
+<th align="right">接頭詞2</th>
+<th align="right">動詞2</th>
+<th align="right">副詞2</th>
+<th align="right">名詞2</th>
+<th align="right">連体詞2</th>
+<th align="right">その他2</th>
+<th align="right">フィラー2</th>
+<th align="right">感動詞2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">01hashigakini_kaete_zuisoroku.txt</td>
+<td align="right">1380</td>
+<td align="right">73.2</td>
+<td align="right">44.6</td>
+<td align="right">4.20</td>
+<td align="right">1.74</td>
+<td align="right">1.159</td>
+<td align="right">0.580</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.072</td>
+<td align="right">2.68</td>
+<td align="right">31.7</td>
+<td align="right">4.35</td>
+<td align="right">3.55</td>
+<td align="right">4.86</td>
+<td align="right">2.39</td>
+<td align="right">5.58</td>
+<td align="right">0.435</td>
+<td align="right">4.493</td>
+<td align="right">0.507</td>
+<td align="right">0.145</td>
+<td align="right">0.507</td>
+<td align="right">2.83</td>
+<td align="right">1.522</td>
+<td align="right">1.159</td>
+<td align="right">0.290</td>
+<td align="right">0.290</td>
+<td align="right">0.435</td>
+<td align="right">3.188</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.000</td>
+<td align="right">0.217</td>
+<td align="right">5.94</td>
+<td align="right">1.667</td>
+<td align="right">1.159</td>
+<td align="right">0.652</td>
+<td align="right">0.870</td>
+<td align="right">1.522</td>
+<td align="right">0.507</td>
+<td align="right">1.16</td>
+<td align="right">0.507</td>
+<td align="right">0.507</td>
+<td align="right">0.072</td>
+<td align="right">1.087</td>
+<td align="right">0.217</td>
+<td align="right">0.797</td>
+<td align="right">0.000</td>
+<td align="right">0.072</td>
+<td align="right">3.48</td>
+<td align="right">0.870</td>
+<td align="right">0.797</td>
+<td align="right">1.449</td>
+<td align="right">0.362</td>
+<td align="right">0.507</td>
+<td align="right">11.7</td>
+<td align="right">0.797</td>
+<td align="right">1.67</td>
+<td align="right">9.42</td>
+<td align="right">1.739</td>
+<td align="right">0.217</td>
+<td align="right">0.145</td>
+<td align="right">0.072</td>
+<td align="right">0.217</td>
+<td align="right">0.290</td>
+<td align="right">0.870</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.072</td>
+<td align="right">0.507</td>
+<td align="right">0.072</td>
+<td align="right">0.652</td>
+<td align="right">0.942</td>
+<td align="right">30.1</td>
+<td align="right">9.71</td>
+<td align="right">0.870</td>
+<td align="right">0.507</td>
+<td align="right">11.9</td>
+<td align="right">2.25</td>
+<td align="right">41.7</td>
+<td align="right">1.377</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">aru_eijigoroshi.txt</td>
+<td align="right">6506</td>
+<td align="right">76.4</td>
+<td align="right">45.6</td>
+<td align="right">4.73</td>
+<td align="right">1.38</td>
+<td align="right">0.415</td>
+<td align="right">0.092</td>
+<td align="right">0.092</td>
+<td align="right">0.753</td>
+<td align="right">0.046</td>
+<td align="right">3.41</td>
+<td align="right">29.5</td>
+<td align="right">6.53</td>
+<td align="right">3.86</td>
+<td align="right">6.96</td>
+<td align="right">2.72</td>
+<td align="right">6.59</td>
+<td align="right">0.661</td>
+<td align="right">1.291</td>
+<td align="right">0.461</td>
+<td align="right">0.077</td>
+<td align="right">0.354</td>
+<td align="right">2.34</td>
+<td align="right">0.784</td>
+<td align="right">1.429</td>
+<td align="right">0.215</td>
+<td align="right">0.815</td>
+<td align="right">0.277</td>
+<td align="right">5.902</td>
+<td align="right">1.322</td>
+<td align="right">0.523</td>
+<td align="right">0.938</td>
+<td align="right">1.537</td>
+<td align="right">4.90</td>
+<td align="right">1.353</td>
+<td align="right">0.984</td>
+<td align="right">0.154</td>
+<td align="right">1.399</td>
+<td align="right">0.676</td>
+<td align="right">1.337</td>
+<td align="right">1.55</td>
+<td align="right">0.630</td>
+<td align="right">0.553</td>
+<td align="right">0.354</td>
+<td align="right">1.967</td>
+<td align="right">0.938</td>
+<td align="right">0.661</td>
+<td align="right">0.231</td>
+<td align="right">0.354</td>
+<td align="right">3.07</td>
+<td align="right">0.523</td>
+<td align="right">0.476</td>
+<td align="right">1.906</td>
+<td align="right">0.231</td>
+<td align="right">0.261</td>
+<td align="right">13.5</td>
+<td align="right">1.829</td>
+<td align="right">3.61</td>
+<td align="right">8.84</td>
+<td align="right">1.368</td>
+<td align="right">0.231</td>
+<td align="right">0.307</td>
+<td align="right">0.569</td>
+<td align="right">0.092</td>
+<td align="right">0.523</td>
+<td align="right">3.259</td>
+<td align="right">0.077</td>
+<td align="right">0.031</td>
+<td align="right">0.492</td>
+<td align="right">1.445</td>
+<td align="right">0.430</td>
+<td align="right">0.031</td>
+<td align="right">1.752</td>
+<td align="right">32.0</td>
+<td align="right">12.48</td>
+<td align="right">1.645</td>
+<td align="right">0.492</td>
+<td align="right">15.4</td>
+<td align="right">2.67</td>
+<td align="right">31.2</td>
+<td align="right">1.814</td>
+<td align="right">0.015</td>
+<td align="right">0.123</td>
+<td align="right">0.292</td>
+</tr>
+<tr class="odd">
+<td align="left">haru.txt</td>
+<td align="right">389</td>
+<td align="right">64.0</td>
+<td align="right">41.4</td>
+<td align="right">3.86</td>
+<td align="right">1.28</td>
+<td align="right">1.028</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">2.83</td>
+<td align="right">29.3</td>
+<td align="right">4.37</td>
+<td align="right">2.06</td>
+<td align="right">7.71</td>
+<td align="right">1.54</td>
+<td align="right">6.17</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">1.28</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">2.83</td>
+<td align="right">0.771</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">5.66</td>
+<td align="right">2.571</td>
+<td align="right">2.057</td>
+<td align="right">0.514</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">1.54</td>
+<td align="right">0.257</td>
+<td align="right">0.514</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">13.9</td>
+<td align="right">2.828</td>
+<td align="right">3.60</td>
+<td align="right">8.23</td>
+<td align="right">0.000</td>
+<td align="right">0.514</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.771</td>
+<td align="right">0.257</td>
+<td align="right">0.514</td>
+<td align="right">3.599</td>
+<td align="right">34.7</td>
+<td align="right">8.48</td>
+<td align="right">0.771</td>
+<td align="right">0.000</td>
+<td align="right">16.2</td>
+<td align="right">2.31</td>
+<td align="right">32.6</td>
+<td align="right">0.514</td>
+<td align="right">0.000</td>
+<td align="right">0.257</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">kamino_tsurugi.txt</td>
+<td align="right">8389</td>
+<td align="right">70.6</td>
+<td align="right">42.8</td>
+<td align="right">4.40</td>
+<td align="right">2.04</td>
+<td align="right">0.524</td>
+<td align="right">0.250</td>
+<td align="right">0.417</td>
+<td align="right">0.942</td>
+<td align="right">0.036</td>
+<td align="right">2.35</td>
+<td align="right">27.8</td>
+<td align="right">4.74</td>
+<td align="right">3.78</td>
+<td align="right">5.57</td>
+<td align="right">3.06</td>
+<td align="right">6.01</td>
+<td align="right">0.346</td>
+<td align="right">0.811</td>
+<td align="right">0.620</td>
+<td align="right">0.131</td>
+<td align="right">0.334</td>
+<td align="right">3.62</td>
+<td align="right">2.479</td>
+<td align="right">1.085</td>
+<td align="right">0.238</td>
+<td align="right">0.489</td>
+<td align="right">0.262</td>
+<td align="right">4.637</td>
+<td align="right">0.226</td>
+<td align="right">0.274</td>
+<td align="right">0.405</td>
+<td align="right">1.597</td>
+<td align="right">3.97</td>
+<td align="right">0.930</td>
+<td align="right">0.763</td>
+<td align="right">0.298</td>
+<td align="right">1.001</td>
+<td align="right">0.799</td>
+<td align="right">0.811</td>
+<td align="right">3.79</td>
+<td align="right">2.253</td>
+<td align="right">0.679</td>
+<td align="right">0.739</td>
+<td align="right">2.098</td>
+<td align="right">1.717</td>
+<td align="right">0.226</td>
+<td align="right">0.143</td>
+<td align="right">0.095</td>
+<td align="right">3.47</td>
+<td align="right">0.584</td>
+<td align="right">0.858</td>
+<td align="right">2.134</td>
+<td align="right">0.620</td>
+<td align="right">0.179</td>
+<td align="right">11.6</td>
+<td align="right">2.158</td>
+<td align="right">4.42</td>
+<td align="right">5.78</td>
+<td align="right">0.715</td>
+<td align="right">1.287</td>
+<td align="right">0.465</td>
+<td align="right">0.608</td>
+<td align="right">0.286</td>
+<td align="right">0.024</td>
+<td align="right">1.466</td>
+<td align="right">0.012</td>
+<td align="right">0.024</td>
+<td align="right">0.143</td>
+<td align="right">0.668</td>
+<td align="right">0.083</td>
+<td align="right">0.739</td>
+<td align="right">2.515</td>
+<td align="right">31.6</td>
+<td align="right">9.73</td>
+<td align="right">1.109</td>
+<td align="right">0.691</td>
+<td align="right">16.0</td>
+<td align="right">2.88</td>
+<td align="right">32.5</td>
+<td align="right">2.003</td>
+<td align="right">0.000</td>
+<td align="right">0.060</td>
+<td align="right">0.226</td>
+</tr>
+<tr class="odd">
+<td align="left">sosekishito_watashi.txt</td>
+<td align="right">38950</td>
+<td align="right">71.0</td>
+<td align="right">41.1</td>
+<td align="right">3.57</td>
+<td align="right">1.42</td>
+<td align="right">1.024</td>
+<td align="right">0.036</td>
+<td align="right">0.244</td>
+<td align="right">0.054</td>
+<td align="right">0.039</td>
+<td align="right">2.23</td>
+<td align="right">28.1</td>
+<td align="right">4.92</td>
+<td align="right">3.89</td>
+<td align="right">5.39</td>
+<td align="right">1.97</td>
+<td align="right">5.73</td>
+<td align="right">0.372</td>
+<td align="right">3.474</td>
+<td align="right">0.683</td>
+<td align="right">0.116</td>
+<td align="right">0.264</td>
+<td align="right">2.44</td>
+<td align="right">1.479</td>
+<td align="right">0.873</td>
+<td align="right">0.072</td>
+<td align="right">0.390</td>
+<td align="right">0.146</td>
+<td align="right">5.163</td>
+<td align="right">0.211</td>
+<td align="right">0.357</td>
+<td align="right">0.259</td>
+<td align="right">0.277</td>
+<td align="right">4.13</td>
+<td align="right">0.978</td>
+<td align="right">0.834</td>
+<td align="right">0.467</td>
+<td align="right">0.842</td>
+<td align="right">0.665</td>
+<td align="right">0.685</td>
+<td align="right">1.61</td>
+<td align="right">0.893</td>
+<td align="right">0.403</td>
+<td align="right">0.234</td>
+<td align="right">0.953</td>
+<td align="right">0.549</td>
+<td align="right">0.198</td>
+<td align="right">0.008</td>
+<td align="right">0.218</td>
+<td align="right">3.58</td>
+<td align="right">0.755</td>
+<td align="right">0.955</td>
+<td align="right">1.854</td>
+<td align="right">0.306</td>
+<td align="right">0.252</td>
+<td align="right">12.7</td>
+<td align="right">2.082</td>
+<td align="right">2.96</td>
+<td align="right">8.66</td>
+<td align="right">1.561</td>
+<td align="right">0.783</td>
+<td align="right">0.254</td>
+<td align="right">0.354</td>
+<td align="right">0.064</td>
+<td align="right">0.118</td>
+<td align="right">1.772</td>
+<td align="right">0.036</td>
+<td align="right">0.010</td>
+<td align="right">0.121</td>
+<td align="right">0.947</td>
+<td align="right">0.187</td>
+<td align="right">0.385</td>
+<td align="right">1.422</td>
+<td align="right">29.5</td>
+<td align="right">9.98</td>
+<td align="right">0.742</td>
+<td align="right">1.309</td>
+<td align="right">12.9</td>
+<td align="right">2.40</td>
+<td align="right">40.0</td>
+<td align="right">1.258</td>
+<td align="right">0.000</td>
+<td align="right">0.039</td>
+<td align="right">0.041</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>結果の出力先ディレクトリ（<code>dir_result</code>）に結果を保存します。Excelなどで内容を確認することができます。</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Excel対応のCSVで保存</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_excel_csv</span>(liwc_results, <span class="fu">file.path</span>(dir_result, <span class="st">&quot;liwc_results.csv&quot;</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_excel_csv</span>(liwc_results_ja, <span class="fu">file.path</span>(dir_result, <span class="st">&quot;liwc_results_ja.csv&quot;</span>))</span></code></pre></div>
+<div class="figure">
+<img src="excel.png" alt="" />
+<p class="caption">Excelで結果を読み込んで表示</p>
+</div>
+</div>
+<div id="j-liwc2015mecabのカテゴリー一覧" class="section level2">
+<h2>J-LIWC2015、MeCabのカテゴリー一覧</h2>
+<p>MeCabのカテゴリーは、末尾に「2」がついています。</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Category</th>
+<th align="left">カテゴリー</th>
+<th align="left">LIWCでの表記</th>
+<th align="left">単語例</th>
+<th align="left">単語数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Linguistic dimensions</td>
+<td align="left">言語次元</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Function words</strong></td>
+<td align="left">機能語</td>
+<td align="left">function</td>
+<td align="left">あいつ、非常に、ない</td>
+<td align="left">1808</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Pronouns</em></strong></td>
+<td align="left">代名詞</td>
+<td align="left">pronoun</td>
+<td align="left">私、あなた、ここ</td>
+<td align="left">111</td>
+</tr>
+<tr class="even">
+<td align="left"><em>Personal pronouns</em></td>
+<td align="left">人称代名詞</td>
+<td align="left">ppron</td>
+<td align="left">私、あなた、彼女</td>
+<td align="left">61</td>
+</tr>
+<tr class="odd">
+<td align="left">1st person singular</td>
+<td align="left">一人称単数</td>
+<td align="left">i</td>
+<td align="left">私、僕、おれ</td>
+<td align="left">13</td>
+</tr>
+<tr class="even">
+<td align="left">1st person plural</td>
+<td align="left">一人称複数</td>
+<td align="left">we</td>
+<td align="left">我々、達、たち</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">2nd person</td>
+<td align="left">二人称</td>
+<td align="left">you</td>
+<td align="left">あなた、君、お前</td>
+<td align="left">16</td>
+</tr>
+<tr class="even">
+<td align="left">3rd person singular</td>
+<td align="left">三人称単数</td>
+<td align="left">shehe</td>
+<td align="left">彼女、彼、あいつ</td>
+<td align="left">8</td>
+</tr>
+<tr class="odd">
+<td align="left">3rd person plural</td>
+<td align="left">三人称複数</td>
+<td align="left">they</td>
+<td align="left">彼女ら、彼ら、奴等</td>
+<td align="left">8</td>
+</tr>
+<tr class="even">
+<td align="left"><em>Impersonal pronouns</em></td>
+<td align="left">不定代名詞</td>
+<td align="left">ipron</td>
+<td align="left">ここ、之、全て</td>
+<td align="left">75</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Case particles</em></strong></td>
+<td align="left">格助詞</td>
+<td align="left">casepart</td>
+<td align="left">とか、から、以来</td>
+<td align="left">187</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Auxiliary verbs</em></strong></td>
+<td align="left">助動詞</td>
+<td align="left">auxverb</td>
+<td align="left">だ、できる、如し</td>
+<td align="left">110</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Adverbs</em></strong></td>
+<td align="left">副詞</td>
+<td align="left">adverb</td>
+<td align="left">すっかり、非常に、目下</td>
+<td align="left">1268</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Conjunctions</em></strong></td>
+<td align="left">接続詞</td>
+<td align="left">conj</td>
+<td align="left">すなわち、一方、及び</td>
+<td align="left">149</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Negations</em></strong></td>
+<td align="left">否定詞</td>
+<td align="left">negate</td>
+<td align="left">ず、ない、未</td>
+<td align="left">44</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Other grammar</strong></td>
+<td align="left">その他の文法</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Verbs</em></strong></td>
+<td align="left">動詞</td>
+<td align="left">verb</td>
+<td align="left">わかる、行く、住む</td>
+<td align="left">2271</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Interrogatives</em></strong></td>
+<td align="left">疑問詞</td>
+<td align="left">interrog</td>
+<td align="left">なぜ、どうして、何</td>
+<td align="left">18</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Numbers</em></strong></td>
+<td align="left">数詞</td>
+<td align="left">number</td>
+<td align="left">ゼロ、百、率</td>
+<td align="left">52</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Quantifiers</em></strong></td>
+<td align="left">数量詞・助数詞</td>
+<td align="left">quant</td>
+<td align="left">数多く、いろんな、バレル</td>
+<td align="left">261</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Adjective verbs</em></strong></td>
+<td align="left">形容動詞</td>
+<td align="left">adjverb</td>
+<td align="left">シンプル、大まか、平気</td>
+<td align="left">184</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Prenoun adjectival</em></strong></td>
+<td align="left">連体詞</td>
+<td align="left">preadj</td>
+<td align="left">ほんの、そんな、如何なる</td>
+<td align="left">35</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Psychological processes</strong></td>
+<td align="left">心理的プロセス</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Affective processes</em></strong></td>
+<td align="left">感情プロセス</td>
+<td align="left">affect</td>
+<td align="left">おかしい、敏感、マジ</td>
+<td align="left">2067</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>Positive emotions</em></td>
+<td align="left">ポジティブ感情</td>
+<td align="left">posemo</td>
+<td align="left">上品、善、最愛</td>
+<td align="left">941</td>
+</tr>
+<tr class="even">
+<td align="left"><em>Negative emotions</em></td>
+<td align="left">ネガティブ感情</td>
+<td align="left">negemo</td>
+<td align="left">不信、いいかげん、いや</td>
+<td align="left">1075</td>
+</tr>
+<tr class="odd">
+<td align="left">Anxiety</td>
+<td align="left">不安</td>
+<td align="left">anx</td>
+<td align="left">不吉、ナーバス、警鐘</td>
+<td align="left">157</td>
+</tr>
+<tr class="even">
+<td align="left">Anger</td>
+<td align="left">怒り</td>
+<td align="left">anger</td>
+<td align="left">不快、逆ギレ、ハラスメント</td>
+<td align="left">329</td>
+</tr>
+<tr class="odd">
+<td align="left">Sadness</td>
+<td align="left">悲しみ</td>
+<td align="left">sad</td>
+<td align="left">不幸、悲観、自滅</td>
+<td align="left">168</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Social processes</strong></td>
+<td align="left">社会的（相互作用）プロセス</td>
+<td align="left">social</td>
+<td align="left">迎える、語る、ふれあい</td>
+<td align="left">1027</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Family</em></strong></td>
+<td align="left">家族</td>
+<td align="left">family</td>
+<td align="left">両親、いとこ、一家</td>
+<td align="left">122</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Friends</em></strong></td>
+<td align="left">友人</td>
+<td align="left">friend</td>
+<td align="left">友達、盟友、相棒</td>
+<td align="left">92</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Female references</em></strong></td>
+<td align="left">女性</td>
+<td align="left">female</td>
+<td align="left">ウーマン、乙女、ママ</td>
+<td align="left">137</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Male references</em></strong></td>
+<td align="left">男性</td>
+<td align="left">male</td>
+<td align="left">おじさん、殿、婿</td>
+<td align="left">105</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Cognitive Processes</strong></td>
+<td align="left">認知プロセス</td>
+<td align="left">cogproc</td>
+<td align="left">心がけ、図る、補う</td>
+<td align="left">1307</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Insight</em></strong></td>
+<td align="left">洞察</td>
+<td align="left">insight</td>
+<td align="left">信念、注目、探索</td>
+<td align="left">384</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Causation</em></strong></td>
+<td align="left">原因</td>
+<td align="left">cause</td>
+<td align="left">誘引、影響、動機</td>
+<td align="left">229</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Discrepancies</em></strong></td>
+<td align="left">不一致</td>
+<td align="left">discrep</td>
+<td align="left">意外、ふつう、誤</td>
+<td align="left">107</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Tentative</em></strong></td>
+<td align="left">あいまいさ</td>
+<td align="left">tentat</td>
+<td align="left">推定、気まぐれ、様々</td>
+<td align="left">281</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Certainty</em></strong></td>
+<td align="left">確かさ</td>
+<td align="left">certain</td>
+<td align="left">常に、厳密、パーフェクト</td>
+<td align="left">247</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Differentiation</em></strong></td>
+<td align="left">差別化</td>
+<td align="left">differ</td>
+<td align="left">識別、相違、対照的</td>
+<td align="left">137</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Perceptual processes</strong></td>
+<td align="left">知覚プロセス</td>
+<td align="left">percept</td>
+<td align="left">五感、体験、味</td>
+<td align="left">970</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>See</em></strong></td>
+<td align="left">視覚・知覚</td>
+<td align="left">see</td>
+<td align="left">一見、写す、白</td>
+<td align="left">351</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Hear</em></strong></td>
+<td align="left">聴覚</td>
+<td align="left">hear</td>
+<td align="left">歌唱、鳴る、静</td>
+<td align="left">205</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Feel</em></strong></td>
+<td align="left">感覚（触覚・味覚・嗅覚）</td>
+<td align="left">feel</td>
+<td align="left">鋭利、感覚、うずうず</td>
+<td align="left">307</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Biological processes</strong></td>
+<td align="left">生物学的プロセス</td>
+<td align="left">bio</td>
+<td align="left">遺伝、生態、成熟</td>
+<td align="left">956</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Body</em></strong></td>
+<td align="left">身体</td>
+<td align="left">body</td>
+<td align="left">つま先、脳、眠い</td>
+<td align="left">286</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Health</em></strong></td>
+<td align="left">健康</td>
+<td align="left">health</td>
+<td align="left">鎮痛、かゆい、しこり</td>
+<td align="left">384</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Sexual</em></strong></td>
+<td align="left">性</td>
+<td align="left">sexual</td>
+<td align="left">ポルノ、欲情、変質者</td>
+<td align="left">118</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Ingestion</em></strong></td>
+<td align="left">摂取</td>
+<td align="left">ingest</td>
+<td align="left">ビール、雑穀、ベジタリアン</td>
+<td align="left">225</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Drives</strong></td>
+<td align="left">動因</td>
+<td align="left">drives</td>
+<td align="left">主権、威力、同胞</td>
+<td align="left">2083</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Affiliation</em></strong></td>
+<td align="left">つながり</td>
+<td align="left">affiliation</td>
+<td align="left">身内、談笑、友情</td>
+<td align="left">418</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Achievement</em></strong></td>
+<td align="left">達成</td>
+<td align="left">achieve</td>
+<td align="left">称賛、リーダー、誇る</td>
+<td align="left">546</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Power</em></strong></td>
+<td align="left">社会的地位・権力</td>
+<td align="left">power</td>
+<td align="left">ランキング、当局、捕まる</td>
+<td align="left">959</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Reward</em></strong></td>
+<td align="left">報酬</td>
+<td align="left">reward</td>
+<td align="left">発展、向上心、功績</td>
+<td align="left">237</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Risk</em></strong></td>
+<td align="left">リスク</td>
+<td align="left">risk</td>
+<td align="left">事故、コスト、セキュリティ</td>
+<td align="left">252</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Relativity</strong></td>
+<td align="left">相対性</td>
+<td align="left">relativ</td>
+<td align="left">原点、前後、無限</td>
+<td align="left">2342</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Motion</em></strong></td>
+<td align="left">動作</td>
+<td align="left">motion</td>
+<td align="left">回す、握る、忍び足</td>
+<td align="left">844</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Space</em></strong></td>
+<td align="left">空間</td>
+<td align="left">space</td>
+<td align="left">領域、距離、溝</td>
+<td align="left">760</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Time</em></strong></td>
+<td align="left">時間</td>
+<td align="left">time</td>
+<td align="left">やっと、週末、最近</td>
+<td align="left">814</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Personal concerns</strong></td>
+<td align="left">個人的な事柄</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Work</em></strong></td>
+<td align="left">仕事・学業</td>
+<td align="left">work</td>
+<td align="left">転職、取り引き、幼稚園</td>
+<td align="left">837</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Leisure</em></strong></td>
+<td align="left">趣味・余暇</td>
+<td align="left">leisure</td>
+<td align="left">歌う、園芸、小説</td>
+<td align="left">399</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Home</em></strong></td>
+<td align="left">家</td>
+<td align="left">home</td>
+<td align="left">キッチン、枕、リフォーム</td>
+<td align="left">148</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Money</em></strong></td>
+<td align="left">金銭</td>
+<td align="left">money</td>
+<td align="left">給料、負債、ディスカウント</td>
+<td align="left">317</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Religion</em></strong></td>
+<td align="left">宗教</td>
+<td align="left">relig</td>
+<td align="left">密教、神主、供える</td>
+<td align="left">183</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Death</em></strong></td>
+<td align="left">死</td>
+<td align="left">death</td>
+<td align="left">追悼、不滅、四十九日</td>
+<td align="left">89</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Informal language</strong></td>
+<td align="left">インフォーマル</td>
+<td align="left">informal</td>
+<td align="left">何だ、あいつ、み</td>
+<td align="left">589</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Swear words</em></strong></td>
+<td align="left">罵倒</td>
+<td align="left">swear</td>
+<td align="left">非国民、アホ、雑魚</td>
+<td align="left">56</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Netspeak</em></strong></td>
+<td align="left">ネットスラング</td>
+<td align="left">netspeak</td>
+<td align="left">うｐ、なう、ぴえん</td>
+<td align="left">346</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Assent</em></strong></td>
+<td align="left">うなずき</td>
+<td align="left">assent</td>
+<td align="left">そう、是非とも、おｋ</td>
+<td align="left">16</td>
+</tr>
+<tr class="even">
+<td align="left"><strong><em>Nonfluencies</em></strong></td>
+<td align="left">間投詞</td>
+<td align="left">nonflu</td>
+<td align="left">あぁ、はて、へえ</td>
+<td align="left">121</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong><em>Filler words</em></strong></td>
+<td align="left">フィラー</td>
+<td align="left">filler</td>
+<td align="left">うむ、さて、はは</td>
+<td align="left">25</td>
+</tr>
+<tr class="even">
+<td align="left">Symbols (MeCab)</td>
+<td align="left">記号2</td>
+<td align="left">symbol2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Adjectives (MeCab)</td>
+<td align="left">形容詞2</td>
+<td align="left">adj2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Case particles (MeCab)</td>
+<td align="left">助詞2</td>
+<td align="left">particle2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Auxiliary verbs (MeCab)</td>
+<td align="left">助動詞2</td>
+<td align="left">auxverb2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Conjunctions (MeCab)</td>
+<td align="left">接続詞2</td>
+<td align="left">conj2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Prefixes (MeCab)</td>
+<td align="left">接頭詞2</td>
+<td align="left">prefix2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Verbs (MeCab)</td>
+<td align="left">動詞2</td>
+<td align="left">verb2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Adverbs (MeCab)</td>
+<td align="left">副詞2</td>
+<td align="left">adverb2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Nouns (MeCab)</td>
+<td align="left">名詞2</td>
+<td align="left">noun2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Prenoun adjectival (MeCab)</td>
+<td align="left">連体詞2</td>
+<td align="left">preadj2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Other grammers (MeCab)</td>
+<td align="left">その他2</td>
+<td align="left">others2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Filler words (MeCab)</td>
+<td align="left">フィラー2</td>
+<td align="left">filler2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Interjections (MeCab)</td>
+<td align="left">感動詞2</td>
+<td align="left">interject2</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="その他" class="section level1">
+<h1>その他</h1>
+<ul>
+<li>CP932 (Shift-JIS)、EUC、UTF-16などのエンコーディングで保存されているテキストファイルは、Rでの読み込み時に文字コードを正しく指定しないと文字化けする場合があります。</li>
+</ul>
+</div>
+<div id="license" class="section level1">
+<h1>License</h1>
+<p>This software is released under the MIT License, see LICENSE, see LICENSE. This website content is released under the CC BY 4.0 License, see LICENSE.</p>
+<p>Copyright (c) 2022 Tasuku Igarashi</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>J-LIWC2015は、IPADICをベースにした形態素解析に最適化されています。NEologdなど、他の辞書を使用した場合の解析結果は保証できません。<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>ユーザー辞書ファイルは、<a href="https://github.com/tasukuigarashi/j-liwc2015" target="_blank">GitHubのJ-LIWC2015サイト</a>にアップロードされています。<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><code>set.seed()</code>の行を削除すると、毎回異なる小説がダウンロードされます。<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+   
+   
+           </section>
+  </div>
+  </div>
+  </div>
+  </div>
+      
+      
+
+  <script>
+    $(document).ready(function () {
+
+		// add bootstrap table styles to pandoc tables
+	$('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+		
+ 		
+	    });
+  </script>
+
+
+
+    <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+	var script = document.createElement("script");
+	script.type = "text/javascript";
+	script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+	document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+  
+</body>
+</html>
