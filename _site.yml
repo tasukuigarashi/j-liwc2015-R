@@ -1,0 +1,6 @@
+name: "J-LIWC2015 on R"
+output:
+  rmdformats::robobook:
+    highlight: tango
+    df_print: "kable"
+output_dir: "docs"
